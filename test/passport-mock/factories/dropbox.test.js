@@ -1,7 +1,7 @@
 var factory = require('../../../lib/passport-mock/factories/dropbox');
 var expect = require('chai').expect;
 
-describe.only('dropbox profile', function () {
+describe('dropbox profile', function () {
   describe('provider', function () {
     it('returns the correct provider', function () {
       expect(factory().provider).to.eql('dropbox');
