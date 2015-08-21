@@ -1,7 +1,7 @@
 var factory = require('../../../lib/passport-mock/factories/dropbox');
 var expect = require('chai').expect;
 
-describe('dropbox profile', function () {
+describe('profile for dropbox', function () {
   describe('provider', function () {
     it('returns the correct provider', function () {
       expect(factory().provider).to.eql('dropbox');
@@ -45,16 +45,6 @@ describe('dropbox profile', function () {
       expect(profile.displayName).to.eql(profile._json.name_details.given_name + ' ' + profile._json.name_details.surname);
     });
 
-    it('can be overwritten', function () {
-      var profile = factory({ displayName: 'Galatea Dunkel' });
-      expect(profile.displayName).to.eql('Galatea Dunkel');
-    });
-
-    it('setting displayName does not set first & last names', function () {
-      var profile = factory({ displayName: 'Galatea Dunkel' });
-      expect(profile.displayName).not.to.eql(profile._json.name_details.given_name + ' ' + profile._json.name_details.surname);
-    });
-
     it('can be overwritten just first name', function () {
       var profile = factory({ firstName: 'Galatea' });
       expect(profile.displayName.split(' ')[0]).to.eql('Galatea');
@@ -64,6 +54,12 @@ describe('dropbox profile', function () {
     it('can be overwritten just last name', function () {
       var profile = factory({ lastName: 'Dunkel' });
       expect(profile.displayName.split(' ')[1]).to.eql('Dunkel');
+      expect(profile._json.name_details.surname).to.eql('Dunkel');
+    });
+
+    it('can be overwritten completely', function () {
+      var profile = factory({ firstName: 'Randall', lastName: 'Dunkel' });
+      expect(profile.displayName).to.eql('Randall Dunkel');
       expect(profile._json.name_details.surname).to.eql('Dunkel');
     });
   });
