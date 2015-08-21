@@ -4,21 +4,25 @@ var Strategy = require('../../').Strategy
   , sinon = require('sinon')
   , passport = require('passport');
 
+it('inherits from passport', function () {
+  expect(Strategy.super_).to.eql(passport.Strategy);
+});
+
 describe('init', function () {
   describe('name', function () {
-    it("has a default", function () {
+    it('has a default', function () {
       var strategy = new Strategy({ callbackURL: '/cb' }, function(){});
       expect(strategy.name).to.eql('mock')
     });
 
-    it("can be set", function () {
+    it('can be set', function () {
       var strategy = new Strategy({ name: 'test', callbackURL: '/cb' }, function(){});
       expect(strategy.name).to.eql('test')
     });
   });
 
   describe('verify', function () {
-    it("requires a verifiy function be passed in", function () {
+    it('requires a verifiy function be passed in', function () {
       expect(function() {
         new Strategy({ callbackURL: '/cb' });
       }).to.throw(Error);
@@ -26,13 +30,13 @@ describe('init', function () {
   });
 
   describe('callbackUrl', function () {
-    it("requires a callbackUrl", function () {
+    it('requires a callbackUrl', function () {
       expect(function (){
         new Strategy({}, function () {});
       }).to.throw(TypeError);
     });
 
-    it("can set the callbackURL", function () {
+    it('can set the callbackURL', function () {
       var strategy = new Strategy({ callbackURL: '/here' }, function () {});
       expect(strategy._callbackURL).to.eql('/here');
     });
