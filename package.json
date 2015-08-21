@@ -1,0 +1,29 @@
+{
+  "name": "passport-mock",
+  "version": "0.0.1",
+  "description": "Mock Passport Strategy",
+  "main": "./",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha ./test/**/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shake-apps/passport-mock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shake-apps/passport-mock/issues"
+  },
+  "homepage": "https://github.com/shake-apps/passport-mock",
+  "dependencies": {
+    "faker": "^3.0.1",
+    "moment": "^2.10.6",
+    "passport": "^0.2.2"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "sinon": "^1.16.0"
+  }
+}
