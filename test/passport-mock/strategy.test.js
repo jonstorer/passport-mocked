@@ -54,14 +54,17 @@ describe('init', function () {
 
     it('has a Dropbox Factory', function () {
       expect(strategy._factory.build('Dropbox')).to.exist
+      expect(strategy._factory.build('dropbox')).to.exist
     })
 
     it('has a Google Factory', function () {
       expect(strategy._factory.build('Google')).to.exist
+      expect(strategy._factory.build('google')).to.exist
     });
 
     it('has a Box Factory', function () {
       expect(strategy._factory.build('Box')).to.exist
+      expect(strategy._factory.build('box')).to.exist
     });
   });
 });
