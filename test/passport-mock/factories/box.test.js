@@ -145,12 +145,12 @@ describe('profile for box', function () {
       });
     });
 
-    describe.skip('id', function (){
-      it('tested elsewhere');
+    describe('id', function (){
+      it('tested in profile.id');
     });
 
-    describe.skip('name', function (){
-      it('tested elsewhere');
+    describe('name', function (){
+      it('tested in profile.displayName');
     });
 
     [ 'created_at', 'modified_at' ].forEach(function (property) {
@@ -259,8 +259,8 @@ describe('profile for box', function () {
       });
     });
 
-    describe.skip('avatar_url', function () {
-      it('is tested elsewhere');
+    describe('avatar_url', function () {
+      it('is tested in profile.photos');
     });
   });
 });

@@ -212,7 +212,7 @@ describe('profile for dropbox', function () {
       });
     });
 
-    describe.skip('uid', function () {
+    describe('uid', function () {
       it('is tested in profile.id');
     });
 
