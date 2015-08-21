@@ -3,18 +3,26 @@ var Factory = require('../../lib/passport-mock/factory')
   , sinon = require('sinon');
 
 describe('.add', function () {
-  var factory;
+  it('registers a factory function', function () {
+    var factory = new Factory();
+    factory.add('tmp', function () { return 'whatever' });
+    expect(factory.build('tmp')).to.eql('whatever');
+  });
+});
+
+describe('.build', function () {
+  var ry;
   beforeEach(function() {
     factory = new Factory();
   });
 
-  it('registers a factory function', function () {
-    factory.add('tmp', function () { return 'whatever' });
-    expect(factory.build('tmp')).to.eql('whatever');
+  it('passes arguments into the factory', function () {
+    factory.add('myFactory', function (value) { return 'hey' + value; });
+    expect(factory.build('myFactory', 'sup')).to.eql('heysup');
   });
 
-  it('passes arguments into the factory', function () {
-    factory.add('new factory', function (value) { return 'hey' + value; });
-    expect(factory.build('new factory', 'sup')).to.eql('heysup');
+  it('throws an error if the factory is not defined', function () {
+    expect(function (){ factory.build('myFactory', {}); }).to.throw(TypeError);
+    expect(function (){ factory.build('myFactory', {}); }).to.throw(/myFactory has not been defined/);
   });
 });
