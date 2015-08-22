@@ -84,24 +84,6 @@ describe('#authenticate', function(){
       strategy.redirect = function(path) { expect(path).to.eql('/cb?__mock_strategy_callback=true'); };
       strategy.authenticate(req, {});
     });
-
-    it('caches an access token on the strategy', function (done) {
-      expect(strategy._access_token).not.to.exist;
-      strategy.redirect = function(path) {
-        expect(strategy._access_token).to.exist;
-        done();
-      };
-      strategy.authenticate(req, {});
-    });
-
-    it('caches a refresh token on the strategy', function (done) {
-      expect(strategy._refresh_token).not.to.exist;
-      strategy.redirect = function(path) {
-        expect(strategy._refresh_token).to.exist;
-        done();
-      };
-      strategy.authenticate(req, {});
-    });
   });
 
   context('second call', function () {
@@ -136,41 +118,68 @@ describe('#authenticate', function(){
           profile = p;
           cb();
         });
-        strategy.redirect = function () {};
-        strategy.authenticate(req, {});
+        //strategy.redirect = function () {};
+        //strategy.authenticate(req, {});
         req.query.__mock_strategy_callback = true;
       });
 
-      it('handles the access token correctly', function (done) {
-        var holdToken = strategy._access_token;
-        expect(strategy._access_token).to.exist;
+      it('creates an access token on the fly', function (done) {
+        expect(strategy._accessToken).to.not.exist;
         expect(accessToken).to.not.exist;
         strategy.success = function(user) {
-          expect(strategy._access_token).not.to.exist;
-          expect(accessToken).to.eql(holdToken);
+          expect(accessToken).to.have.length(40);
           done();
         };
         strategy.authenticate(req, {});
       });
 
-      it('handles the refresh token correctly', function (done) {
-        var holdToken = strategy._refresh_token;
-        expect(strategy._refresh_token).to.exist;
+      it('will use the provided accessToken', function (done) {
+        strategy._accessToken = 'my token';
+        strategy.success = function(user) {
+          expect(accessToken).to.eql('my token');
+          expect(strategy._accessToken).to.not.exist;
+          done();
+        };
+        strategy.authenticate(req, {});
+      });
+
+      it('creates a refresh token on the fly', function (done) {
+        expect(strategy._refreshToken).to.not.exist;
         expect(refreshToken).to.not.exist;
         strategy.success = function(user) {
-          expect(strategy._refresh_token).not.to.exist;
-          expect(refreshToken).to.eql(holdToken);
+          expect(strategy._refreshToken).to.not.exist;
+          expect(refreshToken).to.have.length(40);
+          done();
+        };
+        strategy.authenticate(req, {});
+      });
+
+      it('will use the provided refreshToken', function (done) {
+        strategy._refreshToken = 'my token';
+        strategy.success = function(user) {
+          expect(refreshToken).to.eql('my token');
+          expect(strategy._refreshToken).to.not.exist;
           done();
         };
         strategy.authenticate(req, {});
       });
 
       it('handles the profile correctly', function (done) {
-        var profile = strategy._factory.build('Dropbox', { email: 'test@example.com', id: '1234 ' });
-        strategy._profile = strategy
+        var tmpProfile = strategy._factory.build('Dropbox', { email: 'test@example.com', id: '1234 ' });
+        strategy._profile = tmpProfile;
         strategy.success = function(user) {
           expect(strategy._profile).to.not.exist;
-          expect(profile).to.eql(profile);
+          expect(profile).to.eql(tmpProfile);
+          done();
+        };
+        strategy.authenticate(req, {});
+      });
+
+      it.only('will create a profile based on the name if one was not provided', function (done) {
+        strategy._factory.add('for-tests', function () { return 'hey!' });
+        strategy.name = 'for-tests';
+        strategy.success = function(user) {
+          expect(profile).to.eql('hey!');
           done();
         };
         strategy.authenticate(req, {});
