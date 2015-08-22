@@ -11,7 +11,6 @@ describe('.add', function () {
 });
 
 describe('.build', function () {
-  var ry;
   beforeEach(function() {
     factory = new Factory();
   });
@@ -24,5 +23,18 @@ describe('.build', function () {
   it('throws an error if the factory is not defined', function () {
     expect(function (){ factory.build('myFactory', {}); }).to.throw(TypeError);
     expect(function (){ factory.build('myFactory', {}); }).to.throw(/myFactory has not been defined/);
+  });
+});
+
+describe('.isDefined', function () {
+  beforeEach(function() { factory = new Factory(); });
+
+  it('passes arguments into the factory', function () {
+    factory.add('myFactory', function (value) { return 'hey' + value; });
+    expect(factory.isDefined('myFactory')).to.be.true;
+  });
+
+  it('throws an error if the factory is not defined', function () {
+    expect(factory.isDefined('myFactory')).to.be.false;
   });
 });
