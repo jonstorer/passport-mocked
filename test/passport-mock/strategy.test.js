@@ -108,26 +108,22 @@ describe('#authenticate', function(){
     });
 
     context('success', function () {
-      var accessToken, refreshToken, profile;
-
       beforeEach(function(){
         accessToken = refreshToken = profile = undefined;
         strategy = new Strategy({ callbackURL: '/cb' }, function (at, rt, p, cb) {
-          accessToken = at;
-          refreshToken = rt;
-          profile = p;
-          cb();
+          profile = p || {};
+          profile.accessToken = at;
+          profile.refreshToken = rt;
+          cb(null, profile);
         });
-        //strategy.redirect = function () {};
-        //strategy.authenticate(req, {});
         req.query.__mock_strategy_callback = true;
       });
 
       it('creates an access token on the fly', function (done) {
         expect(strategy._accessToken).to.not.exist;
-        expect(accessToken).to.not.exist;
-        strategy.success = function(user) {
-          expect(accessToken).to.have.length(40);
+        strategy.success = function (profile) {
+          expect(strategy._accessToken).to.not.exist;
+          expect(profile.accessToken).to.have.length(40);
           done();
         };
         strategy.authenticate(req, {});
@@ -135,9 +131,9 @@ describe('#authenticate', function(){
 
       it('will use the provided accessToken', function (done) {
         strategy._accessToken = 'my token';
-        strategy.success = function(user) {
-          expect(accessToken).to.eql('my token');
+        strategy.success = function (profile) {
           expect(strategy._accessToken).to.not.exist;
+          expect(profile.accessToken).to.eql('my token');
           done();
         };
         strategy.authenticate(req, {});
@@ -145,10 +141,9 @@ describe('#authenticate', function(){
 
       it('creates a refresh token on the fly', function (done) {
         expect(strategy._refreshToken).to.not.exist;
-        expect(refreshToken).to.not.exist;
-        strategy.success = function(user) {
+        strategy.success = function (profile) {
           expect(strategy._refreshToken).to.not.exist;
-          expect(refreshToken).to.have.length(40);
+          expect(profile.refreshToken).to.have.length(40);
           done();
         };
         strategy.authenticate(req, {});
@@ -156,9 +151,9 @@ describe('#authenticate', function(){
 
       it('will use the provided refreshToken', function (done) {
         strategy._refreshToken = 'my token';
-        strategy.success = function(user) {
-          expect(refreshToken).to.eql('my token');
+        strategy.success = function (profile) {
           expect(strategy._refreshToken).to.not.exist;
+          expect(profile.refreshToken).to.eql('my token');
           done();
         };
         strategy.authenticate(req, {});
@@ -167,18 +162,20 @@ describe('#authenticate', function(){
       it('handles the profile correctly', function (done) {
         var tmpProfile = strategy._factory.build('Dropbox', { email: 'test@example.com', id: '1234 ' });
         strategy._profile = tmpProfile;
-        strategy.success = function(user) {
+        strategy.success = function (profile) {
           expect(strategy._profile).to.not.exist;
+          delete profile.accessToken;
+          delete profile.refreshToken;
           expect(profile).to.eql(tmpProfile);
           done();
         };
         strategy.authenticate(req, {});
       });
 
-      it.only('will create a profile based on the name if one was not provided', function (done) {
+      it('will create a profile based on the name if one was not provided', function (done) {
         strategy._factory.add('for-tests', function () { return 'hey!' });
         strategy.name = 'for-tests';
-        strategy.success = function(user) {
+        strategy.success = function(profile) {
           expect(profile).to.eql('hey!');
           done();
         };
