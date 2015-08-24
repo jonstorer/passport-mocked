@@ -100,6 +100,7 @@ describe('#authenticate', function(){
           expect(err).to.be.an.instanceOf(Error);
           expect(err.message).to.eql('test error');
           expect(statusCode).to.eql(401);
+          expect(strategy._error).to.not.exist;
           done();
         };
         req.query.__mock_strategy_callback = true;
