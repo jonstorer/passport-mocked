@@ -1,5 +1,5 @@
 {
-  "name": "passport-mock",
+  "name": "passport-mocked",
   "version": "0.0.4",
   "description": "Mock Passport Strategy",
   "main": "./",
