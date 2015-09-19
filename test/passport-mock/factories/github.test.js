@@ -43,8 +43,50 @@ describe('profile for github', function () {
     });
   });
 
-  describe('name', function () {
-    it('is tested in profile.displayName');
+  describe('username', function () {
+    it('returns a string', function () {
+      expect(factory().username).to.be.a('string');
+    });
+
+    it('matches _json.name', function () {
+      var profile = factory();
+      expect(profile.username).to.eql(profile._json.login);
+    });
+
+    it('can be over written (as username)', function () {
+      var profile = factory({ username: 'boomav' });
+      expect(profile.username).to.eql('boomav');
+      expect(profile.username).to.eql(profile._json.login);
+    });
+
+    it('can be over written (as login)', function () {
+      var profile = factory({ login: 'boomav' });
+      expect(profile.username).to.eql('boomav');
+      expect(profile.username).to.eql(profile._json.login);
+    });
+  });
+
+  describe('profileUrl', function () {
+    it('returns a string', function () {
+      expect(factory().profileUrl).to.be.a('string');
+    });
+
+    it('matches _json.name', function () {
+      var profile = factory();
+      expect(profile.profileUrl).to.eql(profile._json.html_url);
+    });
+
+    it('can be over written (as username)', function () {
+      var profile = factory({ profileUrl: '/boomav' });
+      expect(profile.profileUrl).to.eql('/boomav');
+      expect(profile.profileUrl).to.eql(profile._json.html_url);
+    });
+
+    it('can be over written (as html_url)', function () {
+      var profile = factory({ html_url: '/boomav' });
+      expect(profile.profileUrl).to.eql('/boomav');
+      expect(profile.profileUrl).to.eql(profile._json.html_url);
+    });
   });
 
   describe('emails', function () {
@@ -75,6 +117,11 @@ describe('profile for github', function () {
   });
 
   describe('_json', function () {
+    var profile;
+    before(function () {
+      profile = factory();
+    });
+
     describe('id', function () {
       it('is tested in profile.id');
     });
@@ -87,13 +134,29 @@ describe('profile for github', function () {
       it('is tested in profile.emails');
     });
 
-    describe('gender', function () {
-      it('returns male', function() {
-        expect(factory()._json.gender).to.eql('male');
+    describe('login', function () {
+      it('is testing in profileUrl');
+    });
+
+    describe('avatar_url', function () {
+      it('is formatted_correctly', function () {
+        expect(profile._json.avatar_url).to.eql('https://avatars.githubusercontent.com/u/' + profile.id + '?v=3');
       });
 
-      it('can be overwritten', function() {
-        expect(factory({ gender: 'female' })._json.gender).to.eql('female');
+      it('is overwriteable', function () {
+        var profile = factory({ avatar_url: '/pic' })
+        expect(profile._json.avatar_url).to.eql('/pic');
+      });
+    });
+
+    describe('url', function () {
+      it('is formatted_correctly', function () {
+        expect(profile._json.url).to.eql('https://api.github.com/users/' + profile.username);
+      });
+
+      it('is overwriteable', function () {
+        var profile = factory({ url: '/pic' })
+        expect(profile._json.url).to.eql('/pic');
       });
     });
   });
