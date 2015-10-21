@@ -9,7 +9,7 @@ var app = express();
 var Strategy;
 
 if (process.env.NODE_ENV == 'test' ) {
-  Strategy = requrie('passport-mock').Strategy;
+  Strategy = require('passport-mock').Strategy;
 } else {
   Strategy = require('passport-facebook').Strategy;
 }
