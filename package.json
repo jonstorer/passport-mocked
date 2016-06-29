@@ -1,6 +1,6 @@
 {
   "name": "passport-strategy-mock",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Passport Strategy Mock",
   "main": "./",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shake-apps/passport-mock.git"
+    "url": "https://github.com/AlexeyKhristov/passport-strategy-mock.git"
   },
   "author": {
     "name" : "shake-apps",
@@ -36,9 +36,9 @@
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/shake-apps/passport-mock/issues"
+    "url": "https://github.com/AlexeyKhristov/passport-strategy-mock/issues"
   },
-  "homepage": "https://github.com/shake-apps/passport-mock",
+  "homepage": "https://github.com/AlexeyKhristov/passport-strategy-mock",
   "dependencies": {
     "faker": "^3.0.1",
     "moment": "^2.10.6",
