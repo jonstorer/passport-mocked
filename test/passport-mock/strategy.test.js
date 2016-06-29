@@ -199,6 +199,33 @@ describe('#authenticate', function(){
           strategy.authenticate(req, {});
         });
       });
+
+      describe('#_tokenParams', function () {
+        beforeEach(function(){
+          accessToken = refreshToken = profile = undefined;
+          strategy = new Strategy({ callbackURL: '/cb' }, function (at, rt, tokenParams, p, cb) {
+            profile = p || {};
+            profile.accessToken = at;
+            profile.refreshToken = rt;
+            profile.tokenParams = tokenParams;
+            cb(null, profile);
+          });
+          req.query.__mock_strategy_callback = true;
+        });
+
+        it('handles the additional params correctly', function (done) {
+          var tmpProfile = strategy._factory.build('Dropbox', { email: 'test@example.com', id: '1234 ' });
+          var tmpTokenParams = {'param1': 'val1'};
+          strategy._profile = tmpProfile;
+          strategy._params = tmpTokenParams;
+          strategy = Object.create(strategy);
+          strategy.success = function (profile) {
+            expect(profile.tokenParams).to.eql(tmpTokenParams);
+            done();
+          };
+          strategy.authenticate(req, {});
+        });
+      });
     });
   });
 });

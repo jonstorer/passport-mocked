@@ -1,21 +1,44 @@
 {
-  "name": "passport-mocked",
-  "version": "0.0.5",
-  "description": "Mock Passport Strategy",
+  "name": "passport-strategy-mock",
+  "version": "0.1.1",
+  "description": "Passport Strategy Mock",
   "main": "./",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test/**/*"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shake-apps/passport-mock.git"
+    "url": "https://github.com/AlexeyKhristov/passport-strategy-mock.git"
   },
-  "author": "",
+  "author": {
+    "name" : "shake-apps",
+    "url" : "https://github.com/shake-apps"
+  },
+  "contributors": [
+    {
+      "name" : "shake-apps",
+      "url" : "https://github.com/shake-apps"
+    },
+    {
+      "name" : "Alexey Khristov",
+      "email" : "sword.and.digit@gmail.com",
+      "url" : "https://github.com/AlexeyKhristov"
+    }
+  ],
+  "keywords": [
+    "passport",
+    "strategy",
+    "mock",
+    "mocked",
+    "mocking",
+    "test",
+    "testing"
+  ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/shake-apps/passport-mock/issues"
+    "url": "https://github.com/AlexeyKhristov/passport-strategy-mock/issues"
   },
-  "homepage": "https://github.com/shake-apps/passport-mock",
+  "homepage": "https://github.com/AlexeyKhristov/passport-strategy-mock",
   "dependencies": {
     "faker": "^3.0.1",
     "moment": "^2.10.6",
