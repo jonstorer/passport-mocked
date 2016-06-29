@@ -1,4 +1,4 @@
-# Passport-mock
+# Passport-strategy-mock
 Designed as a drop in replacement for any passport auth strategy for integration tests.
 
 #### How to use in your code
@@ -9,7 +9,7 @@ var app = express();
 var Strategy;
 
 if (process.env.NODE_ENV == 'test' ) {
-  Strategy = require('passport-mock').Strategy;
+  Strategy = require('passport-strategy-mock').Strategy;
 } else {
   Strategy = require('passport-facebook').Strategy;
 }

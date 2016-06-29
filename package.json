@@ -1,7 +1,7 @@
 {
-  "name": "passport-mocked",
-  "version": "0.0.5",
-  "description": "Mock Passport Strategy",
+  "name": "passport-strategy-mock",
+  "version": "0.1.0",
+  "description": "Passport Strategy Mock",
   "main": "./",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test/**/*"
@@ -10,7 +10,30 @@
     "type": "git",
     "url": "https://github.com/shake-apps/passport-mock.git"
   },
-  "author": "",
+  "author": {
+    "name" : "shake-apps",
+    "url" : "https://github.com/shake-apps"
+  },
+  "contributors": [
+    {
+      "name" : "shake-apps",
+      "url" : "https://github.com/shake-apps"
+    },
+    {
+      "name" : "Alexey Khristov",
+      "email" : "sword.and.digit@gmail.com",
+      "url" : "https://github.com/AlexeyKhristov"
+    }
+  ],
+  "keywords": [
+    "passport",
+    "strategy",
+    "mock",
+    "mocked",
+    "mocking",
+    "test",
+    "testing"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/shake-apps/passport-mock/issues"
