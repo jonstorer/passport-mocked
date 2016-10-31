@@ -145,6 +145,9 @@ describe('profile for legalshield', function () {
         });
       });
       describe('is_member', function () {
+        it('returns a default value of true', function () {
+          expect(factory()._json.basic_profile.is_member).to.be.true;
+        });
         it('can be over written', function() {
           expect(factory({ is_member: true })._json.basic_profile.is_member).to.be.true;
         });
@@ -166,36 +169,4 @@ describe('profile for legalshield', function () {
       });
     });
   });
-
-      //describe('surname', function (){
-        //it('returns a string', function () {
-          //expect(factory()._json.name_details.surname).to.be.a('string');
-        //});
-
-        //it('can be over written', function () {
-          //expect(factory({ lastName: 'Wiggins' })._json.name_details.surname).to.eql('Wiggins');
-        //});
-      //});
-
-      //describe('familiar_name', function (){
-        //it('returns a string', function () {
-          //expect(factory()._json.name_details.familiar_name).to.be.a('string');
-        //});
-
-        //it('can be over written', function () {
-          //expect(factory({ nickName: 'Boo' })._json.name_details.familiar_name).to.eql('Boo');
-        //});
-      //});
-    //});
-
-    //describe('country', function () {
-      //it('returns US', function () {
-        //expect(factory()._json.country).to.eql('US');
-      //});
-
-      //it('can be overwritten', function () {
-        //expect(factory({ country: 'ES' })._json.country).to.eql('ES');
-      //});
-    //});
-  //});
 });
