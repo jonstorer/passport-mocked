@@ -94,38 +94,47 @@ describe('profile for legalshield', function () {
         it('returns a default value of false', function () {
           expect(factory()._json.access_control.allow_emergency_access).to.be.false;
         });
+
         it('can be over written', function () {
           expect(factory({ access_control: { allow_emergency_access: true }})._json.access_control.allow_emergency_access).to.be.true;
         });
       });
+
       describe('allow_will_preparation', function (){
         it('returns a default value of false', function () {
           expect(factory()._json.access_control.allow_will_preparation).to.be.false;
         });
+
         it('can be over written', function () {
           expect(factory({ access_control: { allow_will_preparation: true }})._json.access_control.allow_will_preparation).to.be.true;
         });
       });
+
       describe('allow_idshield_dashboard', function (){
         it('returns a default value of false', function () {
           expect(factory()._json.access_control.allow_idshield_dashboard).to.be.false;
         });
+
         it('can be over written', function () {
           expect(factory({ access_control: { allow_idshield_dashboard: true }})._json.access_control.allow_idshield_dashboard).to.be.true;
         });
       });
+
       describe('allow_speeding_ticket_upload', function (){
         it('returns a default value of false', function () {
           expect(factory()._json.access_control.allow_speeding_ticket_upload).to.be.false;
         });
+
         it('can be over written', function () {
           expect(factory({ access_control: { allow_speeding_ticket_upload: true }})._json.access_control.allow_speeding_ticket_upload).to.be.true;
         });
       });
+
       describe('allow_member_perks', function () {
         it('returns a default value of false', function () {
           expect(factory()._json.access_control.allow_member_perks).to.be.false;
         });
+
         it('can be over written', function () {
           expect(factory({ access_control: { allow_member_perks: true }})._json.access_control.allow_member_perks).to.be.true;
         });
