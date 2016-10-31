@@ -1,6 +1,6 @@
 {
   "name": "passport-mocked",
-  "version": "0.0.6",
+  "version": "0.0.5",
   "description": "Mock Passport Strategy",
   "main": "./",
   "scripts": {
