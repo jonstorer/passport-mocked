@@ -153,16 +153,25 @@ describe('profile for legalshield', function () {
         });
       });
       describe('is_provider', function () {
+        it('returns a default value of false', function () {
+          expect(factory()._json.basic_profile.is_provider).to.be.false;
+        });
         it('can be over written', function() {
           expect(factory({ is_provider: true })._json.basic_profile.is_provider).to.be.true;
         });
       });
       describe('is_associate', function () {
+        it('returns a default value of false', function () {
+          expect(factory()._json.basic_profile.is_associate).to.be.false;
+        });
         it('can be over written', function() {
           expect(factory({ is_associate: true })._json.basic_profile.is_associate).to.be.true;
         });
       });
       describe('is_broker', function () {
+        it('returns a default value of false', function () {
+          expect(factory()._json.basic_profile.is_broker).to.be.false;
+        });
         it('can be over written', function() {
           expect(factory({ is_broker: true  })._json.basic_profile.is_broker).to.be.true;
         });
