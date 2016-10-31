@@ -21,13 +21,12 @@ describe('profile for legalshield', function () {
     it('can be overwritten', function () {
       var profile = factory({ id: 1234 });
       expect(profile.id).to.eql(1234);
-      expect(profile.id).to.eql(profile._json._json.membership_number);
-      expect(profile.id).to.eql(profile._json.id);
+      expect(profile.id).to.eql(profile._json.membership_number);
     });
 
     it('matches the _json uuid', function () {
       var profile = factory();
-      expect(profile.id).to.eql(profile._json._json.membership_number);
+      expect(profile.id).to.eql(profile._json.membership_number);
     });
   });
 
@@ -38,19 +37,19 @@ describe('profile for legalshield', function () {
 
     it('is comprised of the first name and last name', function () {
       var profile = factory();
-      expect(profile.displayName).to.eql(profile._json.name.givenName + ' ' + profile._json.name.familyName);
+      expect(profile.displayName).to.eql(profile._json.first_name + ' ' + profile._json.last_name);
     });
 
     it('can be overwritten just first name', function () {
       var profile = factory({ firstName: 'Galatea' });
       expect(profile.displayName.split(' ')[0]).to.eql('Galatea');
-      expect(profile._json.name.givenName).to.eql('Galatea');
+      expect(profile._json.first_name).to.eql('Galatea');
     });
 
     it('can be overwritten just last name', function () {
       var profile = factory({ lastName: 'Dunkel' });
       expect(profile.displayName.split(' ')[1]).to.eql('Dunkel');
-      expect(profile._json.name.familyName).to.eql('Dunkel');
+      expect(profile._json.last_name).to.eql('Dunkel');
     });
 
     it('can be overwritten completely', function () {
@@ -67,19 +66,18 @@ describe('profile for legalshield', function () {
 
     it('matches the _json', function () {
       var profile = factory();
-      expect(profile.emails[0].email).to.eql(profile._json.emails[0].value);
+      expect(profile.emails[0].email).to.eql(profile._json.email_address);
     });
 
     it('can be overwritten', function () {
       var profile = factory({ email: 'test@test.test' });
       expect(profile.emails[0].email).to.eql('test@test.test')
-      expect(profile._json.emails[0].value).to.eql('test@test.test')
+      expect(profile._json.email_address).to.eql('test@test.test')
     });
 
     it('is built from firstName, lastName', function () {
       var profile = factory({ firstName: 'bob', lastName: 'Mac Dougal' });
-      expect(profile.emails[0].email).to.eql('bob.macdougal@example.com');
-      expect(profile._json.emails[0].value).to.eql('bob.macdougal@example.com');
+      expect(profile._json.email_address).to.eql('bob.macdougal@example.com');
     });
   });
 
@@ -94,42 +92,42 @@ describe('profile for legalshield', function () {
     describe('access_control', function (){
       describe('allow_emergency_access', function (){
         it('returns a default value of false', function () {
-          expect(factory()._json._json.access_control.allow_emergency_access).to.be.false;
+          expect(factory()._json.access_control.allow_emergency_access).to.be.false;
         });
         it('can be over written', function () {
-          expect(factory({ access_control: { allow_emergency_access: true }})._json._json.access_control.allow_emergency_access).to.be.true;
+          expect(factory({ access_control: { allow_emergency_access: true }})._json.access_control.allow_emergency_access).to.be.true;
         });
       });
       describe('allow_will_preparation', function (){
         it('returns a default value of false', function () {
-          expect(factory()._json._json.access_control.allow_will_preparation).to.be.false;
+          expect(factory()._json.access_control.allow_will_preparation).to.be.false;
         });
         it('can be over written', function () {
-          expect(factory({ access_control: { allow_will_preparation: true }})._json._json.access_control.allow_will_preparation).to.be.true;
+          expect(factory({ access_control: { allow_will_preparation: true }})._json.access_control.allow_will_preparation).to.be.true;
         });
       });
       describe('allow_idshield_dashboard', function (){
         it('returns a default value of false', function () {
-          expect(factory()._json._json.access_control.allow_idshield_dashboard).to.be.false;
+          expect(factory()._json.access_control.allow_idshield_dashboard).to.be.false;
         });
         it('can be over written', function () {
-          expect(factory({ access_control: { allow_idshield_dashboard: true }})._json._json.access_control.allow_idshield_dashboard).to.be.true;
+          expect(factory({ access_control: { allow_idshield_dashboard: true }})._json.access_control.allow_idshield_dashboard).to.be.true;
         });
       });
       describe('allow_speeding_ticket_upload', function (){
         it('returns a default value of false', function () {
-          expect(factory()._json._json.access_control.allow_speeding_ticket_upload).to.be.false;
+          expect(factory()._json.access_control.allow_speeding_ticket_upload).to.be.false;
         });
         it('can be over written', function () {
-          expect(factory({ access_control: { allow_speeding_ticket_upload: true }})._json._json.access_control.allow_speeding_ticket_upload).to.be.true;
+          expect(factory({ access_control: { allow_speeding_ticket_upload: true }})._json.access_control.allow_speeding_ticket_upload).to.be.true;
         });
       });
       describe('allow_member_perks', function () {
         it('returns a default value of false', function () {
-          expect(factory()._json._json.access_control.allow_member_perks).to.be.false;
+          expect(factory()._json.access_control.allow_member_perks).to.be.false;
         });
         it('can be over written', function () {
-          expect(factory({ access_control: { allow_member_perks: true }})._json._json.access_control.allow_member_perks).to.be.true;
+          expect(factory({ access_control: { allow_member_perks: true }})._json.access_control.allow_member_perks).to.be.true;
         });
       });
     });
