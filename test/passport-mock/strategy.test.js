@@ -9,7 +9,6 @@ it('inherits from passport', function () {
 });
 
 describe('init', function () {
-
   describe('name', function () {
     it('has a default', function () {
       var strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function(){}));
