@@ -1,6 +1,6 @@
 {
   "name": "passport-mocked",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Mock Passport Strategy",
   "main": "./",
   "scripts": {
@@ -17,13 +17,10 @@
   },
   "homepage": "https://github.com/shake-apps/passport-mock",
   "dependencies": {
-    "faker": "^3.0.1",
-    "moment": "^2.10.6",
     "passport": "0.3.0"
   },
   "devDependencies": {
     "chai": "^3.2.0",
-    "mocha": "^2.2.5",
-    "sinon": "^1.16.0"
+    "mocha": "^2.2.5"
   }
 }

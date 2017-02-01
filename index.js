@@ -1,1 +1,4 @@
-module.exports = require('./lib/passport-mock');
+var util = require('util');
+var passport = require('passport');
+
+module.exports = require('./strategy')(passport, util);
