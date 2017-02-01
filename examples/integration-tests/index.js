@@ -1,4 +1,5 @@
 var passport = require('passport');
+var port = 3445;
 
 passport.serializeUser(function(user, done) { done(null, user); });
 passport.deserializeUser(function(user, done) { done(null, user); });
@@ -8,7 +9,7 @@ var providers = [ 'dropbox', 'google', 'box' ];
 var configs = providers.map(function(provider) {
   return {
     name: provider,
-    callbackURL: 'http://localhost:3000/auth/' + provider + '/callback'
+    callbackURL: 'http://localhost:' + port + '/auth/' + provider + '/callback'
   };
 });
 
@@ -41,12 +42,19 @@ app.use(function (req, res, next) {
 
 app.use(express.static(__dirname + '/public'));
 
-providers.forEach(function (provider) {
-  app.get('/auth/' + provider, passport.authenticate(provider));
+var count = 0;
+var buildFakeProfile = function (provider) {
+  return function (req, res, next) {
+    var strategy = passport._strategies[provider];
+    strategy._token_response = { access_token: provider + '-at', expires_in: 3600 };
+    strategy._profile = { id: ++count, provider: provider };
+    next();
+  };
+};
 
-  app.get('/auth/' + provider + '/callback', passport.authenticate(provider, { failureRedirect: '/' }), function (req, res, next) {
-    res.redirect('/');
-  });
+providers.forEach(function (provider) {
+  app.get('/auth/' + provider, buildFakeProfile(provider), passport.authenticate(provider));
+  app.get('/auth/' + provider + '/callback', passport.authenticate(provider, { successRedirect: '/', failureRedirect: '/' }));
 });
 
 app.get('/logout', function (req, res, next) {
@@ -56,7 +64,7 @@ app.get('/logout', function (req, res, next) {
 
 app.get('/', function (req, res, next) { res.render('index'); });
 
-var server = app.listen(3000, function () {
+var server = app.listen(port, function () {
   var host = server.address().address;
   var port = server.address().port;
   console.log('Passport Mock Example listening at http://%s:%s', host, port);

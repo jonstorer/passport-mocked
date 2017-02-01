@@ -37,12 +37,21 @@ passport.use(new Strategy({
 
 var passport = require('passport');
 
-this.When(^/I log in to facebook as:$/, function (table, next) {
-  passport._strategies.facebook._profile = {
-    displayName: 'Jon Smith',
+this.When(^/I log in to (.+) as:$/, function (provider, table, next) {
+  var strategy = passport._strategies[provider];
+
+  strategy._token_response = {
+    access_token: 'at-1234',
+    expires_in: 3600
+  };
+
+  strategy._profile = {
     id: 1234,
+    provider: provider,
+    displayName: 'Jon Smith',
     emails: [ { value: 'jon.smith@example.com' } ]
   };
+
   browser.get('/auth/facebook', next);
 });
 
