@@ -10,7 +10,7 @@ describe('init', function () {
   describe('name', function () {
     it('has a default', function () {
       var strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function () {}));
-      expect(strategy.name).to.eql('mock')
+      expect(strategy.name).to.eql('mocked')
     });
 
     it('can be set', function () {

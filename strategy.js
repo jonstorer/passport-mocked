@@ -1,10 +1,9 @@
 module.exports = function (passport, util) {
-
   function MockStrategy (options, verify) {
     if (!verify) { throw new TypeError('MockStrategy requires a verify callback'); }
     if (!options.callbackURL) { throw new TypeError('MockStrategy requires a callbackURL'); }
 
-    this.name = options.name || 'mock';
+    this.name = options.name || 'mocked';
     this.verify = verify;
     this._callbackURL = options.callbackURL;
     this._passReqToCallback = options.passReqToCallback || false;
