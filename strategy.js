@@ -45,7 +45,6 @@ module.exports = function (passport, util) {
         } else { // arity === 4
           this.verify(access_token, refresh_token, profile, verified);
         }
-
       }
     }
   }
