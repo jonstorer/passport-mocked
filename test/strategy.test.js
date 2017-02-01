@@ -54,7 +54,7 @@ describe('init', function () {
 });
 
 describe('#authenticate', function (){
-  var strategy, req;
+  var req;
 
   beforeEach(function (){
     req = { query: { } };
@@ -62,7 +62,7 @@ describe('#authenticate', function (){
 
   context('when __mock_strategy_callback is not set', function () {
     it('redirects the user to the callbackURL with the correct query param', function (done) {
-      strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function () {}));
+      var strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function () {}));
       strategy.redirect = function (path) {
         expect(path).to.eql('/cb?__mock_strategy_callback=true');
         done();
