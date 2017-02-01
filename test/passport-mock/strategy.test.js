@@ -123,6 +123,7 @@ describe('#authenticate', function(){
         strategy._accessToken = 'at';
         strategy._refreshToken = 'rt';
         strategy._expires_in = 98765;
+        strategy._expires = 98765;
         strategy._scope = 'email';
         strategy._token_type = 'access_token';
         strategy._profile = { count: 1 };
@@ -161,9 +162,10 @@ describe('#authenticate', function(){
               expect(body.accessToken).to.eql('at');
               expect(body.refreshToken).to.eql('rt');
               expect(body.profile.count).to.eql(1);
-              expect(body.params).to.have.keys('access_token', 'expires_in', 'token_type', 'scope')
+              expect(body.params).to.have.keys('access_token', 'expires', 'expires_in', 'token_type', 'scope')
               expect(body.params.access_token).to.eql('at');
               expect(body.params.expires_in).to.eql(98765);
+              expect(body.params.expires).to.eql(98765);
               expect(body.params.scope).to.eql('email');
               expect(body.params.token_type).to.eql('access_token');
               done();
@@ -200,9 +202,10 @@ describe('#authenticate', function(){
               expect(body.accessToken).to.eql('at');
               expect(body.refreshToken).to.eql('rt');
               expect(body.profile.count).to.eql(1);
-              expect(body.params).to.have.keys('access_token', 'expires_in', 'token_type', 'scope')
+              expect(body.params).to.have.keys('access_token', 'expires', 'expires_in', 'token_type', 'scope')
               expect(body.params.access_token).to.eql('at');
               expect(body.params.expires_in).to.eql(98765);
+              expect(body.params.expires).to.eql(98765);
               expect(body.params.scope).to.eql('email');
               expect(body.params.token_type).to.eql('access_token');
               done();
