@@ -1,4 +1,6 @@
 module.exports = function (passport, util) {
+  var clone = function (o) { return JSON.parse(JSON.stringify(o)); }
+
   function MockStrategy (options, verify) {
     if (!verify) { throw new TypeError('MockStrategy requires a verify callback'); }
     if (!options.callbackURL) { throw new TypeError('MockStrategy requires a callbackURL'); }
@@ -22,8 +24,9 @@ module.exports = function (passport, util) {
       } else {
         var verified = function (e, d) { this.success(d); }.bind(this);
 
+        var token_set = clone(this._token_response || {});
         var profile = this._profile || {};
-        var token_response = this._token_response || {};
+        var token_response = clone(this._token_response || {});
         var access_token = token_response['access_token'];
         var refresh_token = token_response['refresh_token'];
         delete token_response['refresh_token'];
@@ -42,8 +45,10 @@ module.exports = function (passport, util) {
           } else {
             this.verify(access_token, refresh_token, token_response, profile, verified);
           };
-        } else { // arity === 4
+        } else if (arity === 4) {
           this.verify(access_token, refresh_token, profile, verified);
+        } else if (arity === 2) {
+          this.verify(token_set, verified);
         }
       }
     }
