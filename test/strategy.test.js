@@ -34,8 +34,13 @@ describe('init', function () {
       }).to.throw(TypeError);
     });
 
-    it('can be set', function () {
+    it('can be set for OAuth 2', function () {
       var strategy = Object.create(new Strategy({ callbackURL: '/here' }, function () {}));
+      expect(strategy._callbackURL).to.eql('/here');
+    });
+
+    it('can be set for OpenID Connect', function () {
+      var strategy = Object.create(new Strategy({ client: { redirect_uris: [ '/here' ] } }, function () {}));
       expect(strategy._callbackURL).to.eql('/here');
     });
   });
