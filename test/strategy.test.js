@@ -1,9 +1,30 @@
 var Strategy = require('../').Strategy
+  , PassportMocked = require('../')
   , expect = require('chai').expect
   , passport = require('passport');
 
 it('inherits from passport', function () {
   expect(Strategy.super_).to.eql(passport.Strategy);
+});
+
+describe('exports', function () {
+  it('exports Strategy', function () {
+    expect(PassportMocked.Strategy).to.exist;
+  });
+
+  it('exports OAuth2Strategy', function () {
+    expect(PassportMocked.OAuth2Strategy).to.exist;
+  });
+
+  describe('exports OAuth2', function () {
+    it('exports PasswordStrategy', function () {
+      expect(PassportMocked.OAuth2.PasswordStrategy).to.exist;
+    });
+
+    it('exports AuthorizationCodeStrategy', function () {
+      expect(PassportMocked.OAuth2.AuthorizationCodeStrategy).to.exist;
+    });
+  });
 });
 
 describe('init', function () {
@@ -20,10 +41,29 @@ describe('init', function () {
   });
 
   describe('verify', function () {
-    it('requires a verifiy function be passed in', function () {
-      expect(function () {
-        new Strategy({ callbackURL: '/cb' });
-      }).to.throw(Error);
+    it('has a default', function (done) {
+      var fakeTokenSet = {
+        access_token: 'some-access-token',
+        refresh_token: 'some-refresh-token',
+        claims: 'some-claims'
+      };
+
+      var strategy = new Strategy({ callbackURL: '/cb' });
+      strategy.verify(fakeTokenSet, function(user, info) {
+        expect(user).to.be.null;
+        expect(info).to.eql({
+          accessToken: 'some-access-token',
+          refreshToken: 'some-refresh-token',
+          idToken: 'some-claims'
+        });
+
+        done();
+      });
+    });
+
+    it('can be set', function () {
+      var strategy = new Strategy({ callbackURL: '/cb' }, 'something');
+      expect(strategy.verify).to.eql('something');
     });
   });
 
@@ -41,6 +81,11 @@ describe('init', function () {
 
     it('can be set for OpenID Connect', function () {
       var strategy = Object.create(new Strategy({ client: { redirect_uris: [ '/here' ] } }, function () {}));
+      expect(strategy._callbackURL).to.eql('/here');
+    });
+
+    it('can be set for PPLSI OpenID Connect', function () {
+      var strategy = Object.create(new Strategy({ redirect_uri: '/here' }, function () {}));
       expect(strategy._callbackURL).to.eql('/here');
     });
   });
