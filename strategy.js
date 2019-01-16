@@ -2,12 +2,18 @@ module.exports = function (passport, util) {
   var clone = function (o) { return JSON.parse(JSON.stringify(o)); }
 
   function MockStrategy (options, verify) {
-    if (!verify) { throw new TypeError('MockStrategy requires a verify callback'); }
-    if (!(options.callbackURL || options.client.redirect_uris[0])) { throw new TypeError('MockStrategy requires a callbackURL'); }
+    if (!(options.callbackURL || options.redirect_uri || options.client.redirect_uris[0])) { throw new TypeError('MockStrategy requires a callbackURL'); }
+
+    if (!verify) {
+      this.verify = function(tokenset, next) {
+        next(null, { accessToken: tokenset.access_token, refreshToken: tokenset.refresh_token, idToken: tokenset.claims });
+      };
+    } else {
+      this.verify = verify;
+    }
 
     this.name = options.name || 'mocked';
-    this.verify = verify;
-    this._callbackURL = (options.callbackURL || options.client.redirect_uris[0]);
+    this._callbackURL = (options.callbackURL || options.redirect_uri || options.client.redirect_uris[0]);
     this._passReqToCallback = options.passReqToCallback || false;
   }
 
@@ -54,5 +60,12 @@ module.exports = function (passport, util) {
     }
   }
 
-  return { Strategy: MockStrategy, OAuth2Strategy: MockStrategy };
+  return {
+    Strategy: MockStrategy,
+    OAuth2Strategy: MockStrategy,
+    OAuth2: {
+      PasswordStrategy: MockStrategy,
+      AuthorizationCodeStrategy: MockStrategy
+    }
+  };
 };
