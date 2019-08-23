@@ -286,12 +286,6 @@ describe('#authenticate', function (){
 });
 
 describe('#Issuer', function() {
-  let req;
-
-  beforeEach(function (){
-    req = { query: { } };
-  });
-
   it('returns a discover function and well known config object', function() {
     expect(Issuer.discover).to.be.a('function');
     expect(Issuer._well_known_config).to.be.an('object');
