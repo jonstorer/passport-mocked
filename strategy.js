@@ -65,9 +65,7 @@ module.exports = function (passport, util) {
 
   function Client (config) {
     return new Promise(function (res, rej) {
-      config.issuer = {
-        end_sessions_endpoint: URL.parse(config.issuer.host).host + '/logout'
-      }
+      config.issuer = Issuer._well_known_config;
       res(config);
     });
   }
@@ -83,6 +81,8 @@ module.exports = function (passport, util) {
 
     return self;
   })();
+
+  Issuer._well_known_config = {};
 
   return {
     Issuer: Issuer,
