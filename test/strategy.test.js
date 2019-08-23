@@ -288,7 +288,6 @@ describe('#authenticate', function (){
 describe('#Issuer', function() {
   it('returns a discover function and well known config object', function() {
     expect(Issuer.discover).to.be.a('function');
-    expect(Issuer._well_known_config).to.be.an('object');
   });
 
   describe('#discover', function() {
@@ -312,14 +311,24 @@ describe('#Issuer', function() {
 
 describe('#Client', function() {
   beforeEach(function (){
-    config = { issuer: 'localhost:5000' };
+    config = { issuer: {
+      host: 'http://localhost:3000/auth/o_auth2/.well-known/openid-configuration'
+    }};
   });
 
   it('returns a new client', function() {
     Issuer.discover('localhost:5000/').then(function(issuer) {
       return new issuer.Client(config);
     }).then((client) => {
-      expect(client.issuer).to.eql({})
+      expect(client.issuer).to.be.defined;
+    });
+  });
+
+  it('returns an end_sessions_endpoint on the client', function() {
+    Issuer.discover('localhost:5000/').then(function(issuer) {
+      return new issuer.Client(config);
+    }).then((client) => {
+      expect(client.issuer.end_sessions_endpoint).to.eql('http://localhost:3000/logout')
     });
   });
 });

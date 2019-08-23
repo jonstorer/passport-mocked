@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+var URL = require('url');
 
 module.exports = function (passport, util) {
   var clone = function (o) { return JSON.parse(JSON.stringify(o)); }
@@ -64,7 +65,9 @@ module.exports = function (passport, util) {
 
   function Client (config) {
     return new Promise(function (res, rej) {
-      config.issuer = Issuer._well_known_config
+      config.issuer = {
+        end_sessions_endpoint: URL.parse(config.issuer.host).host + '/logout'
+      }
       res(config);
     });
   }
@@ -80,8 +83,6 @@ module.exports = function (passport, util) {
 
     return self;
   })();
-
-  Issuer._well_known_config = {};
 
   return {
     Issuer: Issuer,
