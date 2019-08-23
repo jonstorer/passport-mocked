@@ -73,10 +73,8 @@ module.exports = function (passport, util) {
     let self = {};
 
     self.discover = function (url) {
-      if (!url) { throw new TypeError('Issuer requires a url'); }
-
       return new Promise(function (res, rej) {
-        res({ Client: Client });
+        !!url ? res({ Client: Client }) : rej('Issuer requires a url');
       });
     }
 

@@ -1,4 +1,7 @@
-var Strategy = require('../').Strategy
+require('chai').use(require('chai-as-promised'));
+
+var Issuer = require('../').Issuer
+  , Strategy = require('../').Strategy
   , PassportMocked = require('../')
   , expect = require('chai').expect
   , passport = require('passport');
@@ -278,6 +281,51 @@ describe('#authenticate', function (){
         };
         strategy.authenticate(req, {});
       });
+    });
+  });
+});
+
+describe('#Issuer', function() {
+  let req;
+
+  beforeEach(function (){
+    req = { query: { } };
+  });
+
+  it('returns a discover function and well known config object', function() {
+    expect(Issuer.discover).to.be.a('function');
+    expect(Issuer._well_known_config).to.be.an('object');
+  });
+
+  describe('#discover', function() {
+    context('when a url is passed', function() {
+      it('returns a Client contructor and well known config object', function() {
+        Issuer.discover('localhost:5000/').then(function(issuer) {
+          expect(issuer.Client).to.be.a('function');
+        });
+      });
+    });
+
+    context('when a url is not passed', function() {
+      it('rejects with an error', function() {
+        Issuer.discover().catch(function(err) {
+          expect(err).to.be.defined;
+        });
+      });
+    });
+  });
+});
+
+describe('#Client', function() {
+  beforeEach(function (){
+    config = { issuer: 'localhost:5000' };
+  });
+
+  it('returns a new client', function() {
+    Issuer.discover('localhost:5000/').then(function(issuer) {
+      return new issuer.Client(config);
+    }).then((client) => {
+      expect(client.issuer).to.eql({})
     });
   });
 });
