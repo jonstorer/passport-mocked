@@ -8,6 +8,10 @@ it('inherits from passport', function () {
 });
 
 describe('exports', function () {
+  it('exports Issuer', function () {
+    expect(PassportMocked.Issuer).to.exist;
+  });
+
   it('exports Strategy', function () {
     expect(PassportMocked.Strategy).to.exist;
   });

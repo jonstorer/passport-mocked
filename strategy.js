@@ -1,3 +1,5 @@
+var Promise = require('bluebird');
+
 module.exports = function (passport, util) {
   var clone = function (o) { return JSON.parse(JSON.stringify(o)); }
 
@@ -60,7 +62,31 @@ module.exports = function (passport, util) {
     }
   }
 
+  function Client (config) {
+    return new Promise(function (res, rej) {
+      config.issuer = Issuer._well_known_config
+      res(config);
+    });
+  }
+
+  let Issuer = (function () {
+    let self = {};
+
+    self.discover = function (url) {
+      if (!url) { throw new TypeError('Issuer requires a url'); }
+
+      return new Promise(function (res, rej) {
+        res({ Client: Client });
+      });
+    }
+
+    return self;
+  })();
+
+  Issuer._well_known_config = {};
+
   return {
+    Issuer: Issuer,
     Strategy: MockStrategy,
     OAuth2Strategy: MockStrategy,
     OAuth2: {

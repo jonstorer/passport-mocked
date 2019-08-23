@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/shake-apps/passport-mock",
   "dependencies": {
+    "bluebird": "^3.5.5",
     "passport": "0.3.0"
   },
   "devDependencies": {
