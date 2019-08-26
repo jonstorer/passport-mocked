@@ -1,4 +1,7 @@
-var Strategy = require('../').Strategy
+require('chai').use(require('chai-as-promised'));
+
+var Issuer = require('../').Issuer
+  , Strategy = require('../').Strategy
   , PassportMocked = require('../')
   , expect = require('chai').expect
   , passport = require('passport');
@@ -8,6 +11,10 @@ it('inherits from passport', function () {
 });
 
 describe('exports', function () {
+  it('exports Issuer', function () {
+    expect(PassportMocked.Issuer).to.exist;
+  });
+
   it('exports Strategy', function () {
     expect(PassportMocked.Strategy).to.exist;
   });
@@ -274,6 +281,46 @@ describe('#authenticate', function (){
         };
         strategy.authenticate(req, {});
       });
+    });
+  });
+});
+
+describe('#Issuer', function() {
+  it('returns a discover function and well known config object', function() {
+    expect(Issuer.discover).to.be.a('function');
+  });
+
+  describe('#discover', function() {
+    context('when a url is passed', function() {
+      it('returns a Client contructor and well known config object', function() {
+        Issuer.discover('localhost:5000/').then(function(issuer) {
+          expect(issuer.Client).to.be.a('function');
+        });
+      });
+    });
+
+    context('when a url is not passed', function() {
+      it('rejects with an error', function() {
+        Issuer.discover().catch(function(err) {
+          expect(err).to.be.defined;
+        });
+      });
+    });
+  });
+});
+
+describe('#Client', function() {
+  beforeEach(function (){
+    config = { issuer: {
+      host: 'http://localhost:3000/auth/o_auth2/.well-known/openid-configuration'
+    }};
+  });
+
+  it('returns a new client', function() {
+    Issuer.discover('localhost:5000/').then(function(issuer) {
+      return new issuer.Client(config);
+    }).then((client) => {
+      expect(client.issuer).to.be.defined;
     });
   });
 });
