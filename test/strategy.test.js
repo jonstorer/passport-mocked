@@ -323,12 +323,4 @@ describe('#Client', function() {
       expect(client.issuer).to.be.defined;
     });
   });
-
-  it('returns an end_sessions_endpoint on the client', function() {
-    Issuer.discover('localhost:5000/').then(function(issuer) {
-      return new issuer.Client(config);
-    }).then((client) => {
-      expect(client.issuer.end_sessions_endpoint).to.eql('http://localhost:3000/logout')
-    });
-  });
 });
