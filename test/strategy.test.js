@@ -1,8 +1,4 @@
-require('chai').use(require('chai-as-promised'));
-
-
 const Strategy = require('../').Strategy
-  , PassportMocked = require('../')
   , expect = require('chai').expect
   , PassportStrategy = require('passport-strategy').Strategy
   , passport = require('passport');
@@ -12,12 +8,6 @@ passport.deserializeUser((d, c) => c(null, d));
 
 it('inherits from passport', function () {
   expect(Strategy.super_).to.eql(PassportStrategy);
-});
-
-describe('exports', function () {
-  it('exports Strategy', function () {
-    expect(PassportMocked.Strategy).to.exist;
-  });
 });
 
 describe('setup', function () {

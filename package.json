@@ -2,7 +2,7 @@
   "name": "passport-mocked",
   "version": "1.4.0",
   "description": "Mock Passport Strategy",
-  "main": "./",
+  "main": "lib",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test/**/*"
   },
@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "chai": "^4.3.7",
-    "chai-as-promised": "^7.1.1",
     "mocha": "^10.2.0",
     "passport": "^0.6.0"
   }
