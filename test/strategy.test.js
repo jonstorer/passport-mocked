@@ -98,8 +98,6 @@ describe('#authenticate', function (){
     });
 
     context('verify callback', () => {
-      let passport_user
-
       beforeEach(function (done) {
         strategy = new Strategy({ callbackURL: '/cb' }, function (...args) {
           const cb = args.pop()
@@ -131,7 +129,34 @@ describe('#authenticate', function (){
           expect(err.message).to.eql('MockStrategy requires arguments to be defined for each authentication')
         });
       })
+    })
 
+    context('override callback', () => {
+      let err, user, info
+
+      beforeEach(function (done) {
+        strategy = new Strategy({ callbackURL: '/cb' }, function (user, info, cb) {
+          cb(null, user, info);
+        });
+
+        const callback = (_err, _user, _info) => {
+          err = _err
+          user = _user
+          info = _info
+          done()
+        }
+
+        strategy._addVerifyArgs('user', 'info');
+
+        passport.use(strategy)
+        passport.authenticate('mocked', callback)(req, res, done)
+      })
+
+      it('passes the user and info arguments', function () {
+        expect(err).to.not.exist
+        expect(user).to.eql('user')
+        expect(info).to.eql('info')
+      });
     })
 
     describe('error', function () {
