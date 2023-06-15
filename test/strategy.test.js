@@ -1,326 +1,191 @@
 require('chai').use(require('chai-as-promised'));
 
-var Issuer = require('../').Issuer
-  , Strategy = require('../').Strategy
+
+const Strategy = require('../').Strategy
   , PassportMocked = require('../')
   , expect = require('chai').expect
+  , PassportStrategy = require('passport-strategy').Strategy
   , passport = require('passport');
 
+passport.serializeUser((d, c) => c(null, d));
+passport.deserializeUser((d, c) => c(null, d));
+
 it('inherits from passport', function () {
-  expect(Strategy.super_).to.eql(passport.Strategy);
+  expect(Strategy.super_).to.eql(PassportStrategy);
 });
 
 describe('exports', function () {
-  it('exports Issuer', function () {
-    expect(PassportMocked.Issuer).to.exist;
-  });
-
   it('exports Strategy', function () {
     expect(PassportMocked.Strategy).to.exist;
   });
-
-  it('exports OAuth2Strategy', function () {
-    expect(PassportMocked.OAuth2Strategy).to.exist;
-  });
-
-  describe('exports OAuth2', function () {
-    it('exports PasswordStrategy', function () {
-      expect(PassportMocked.OAuth2.PasswordStrategy).to.exist;
-    });
-
-    it('exports AuthorizationCodeStrategy', function () {
-      expect(PassportMocked.OAuth2.AuthorizationCodeStrategy).to.exist;
-    });
-  });
 });
 
-describe('init', function () {
+describe('setup', function () {
   describe('name', function () {
     it('has a default', function () {
-      var strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function () {}));
-      expect(strategy.name).to.eql('mocked')
+      expect(new Strategy({ callbackURL: '/cb' }, () => {}).name).to.eql('mocked')
     });
 
-    it('can be set', function () {
-      var strategy = Object.create(new Strategy({ name: 'test', callbackURL: '/cb' }, function () {}));
-      expect(strategy.name).to.eql('test')
+    it('can be overwritten', function () {
+      expect(new Strategy({ name: 'test', callbackURL: '/cb' }, () => {}).name).to.eql('test')
+    });
+  });
+
+  describe('_callbackURL', function () {
+    it('requires a callback url', function () {
+      expect(function () { new Strategy({}, () => {}) }).to.throw('MockStrategy requires a callbackURL')
+    });
+
+    [
+      'callbackURL',
+      'callbackUrl',
+      'redirect_uri',
+    ].forEach(function (name) {
+      it(`accepts '${name}'`, function () {
+        const opts = {}; opts[name] = '/'
+        expect(new Strategy(opts, () => {})._callbackURL).to.eql('/')
+      });
+    })
+
+    it("accepts 'redirect_uris'", function () {
+      expect(new Strategy({ redirect_uris: ['/'] }, () => {})._callbackURL).to.eql('/')
+    });
+  })
+
+  describe('_passReqToCallback', function () {
+    it('defaults to false', function () {
+      expect(new Strategy({ callbackURL: '/cb' }, () => {})._passReqToCallback).to.be.false
+    });
+
+    it('can be overwritten to true', function () {
+      expect(new Strategy({ callbackURL: '/cb', passReqToCallback: true }, () => {})._passReqToCallback).to.be.true
     });
   });
 
   describe('verify', function () {
-    it('has a default', function (done) {
-      var fakeTokenSet = {
-        access_token: 'some-access-token',
-        refresh_token: 'some-refresh-token',
-        claims: 'some-claims'
-      };
-
-      var strategy = new Strategy({ callbackURL: '/cb' });
-      strategy.verify(fakeTokenSet, function(user, info) {
-        expect(user).to.be.null;
-        expect(info).to.eql({
-          accessToken: 'some-access-token',
-          refreshToken: 'some-refresh-token',
-          idToken: 'some-claims'
-        });
-
-        done();
-      });
-    });
-
-    it('can be set', function () {
-      var strategy = new Strategy({ callbackURL: '/cb' }, 'something');
-      expect(strategy.verify).to.eql('something');
-    });
-  });
-
-  describe('callbackUrl', function () {
-    it('requires a callbackUrl', function () {
-      expect(function (){
-        new Strategy({}, function () {});
-      }).to.throw(TypeError);
-    });
-
-    it('can be set for OAuth 2', function () {
-      var strategy = Object.create(new Strategy({ callbackURL: '/here' }, function () {}));
-      expect(strategy._callbackURL).to.eql('/here');
-    });
-
-    it('can be set for OpenID Connect', function () {
-      var strategy = Object.create(new Strategy({ client: { redirect_uris: [ '/here' ] } }, function () {}));
-      expect(strategy._callbackURL).to.eql('/here');
-    });
-
-    it('can be set for PPLSI OpenID Connect', function () {
-      var strategy = Object.create(new Strategy({ redirect_uri: '/here' }, function () {}));
-      expect(strategy._callbackURL).to.eql('/here');
-    });
-  });
-
-  describe('passReqToCallback', function () {
-    it('defaults to false', function () {
-      var strategy = Object.create(new Strategy({ callbackURL: '/here' }, function () {}));
-      expect(strategy._passReqToCallback).to.be.false;
-    });
-
-    it('can be set to true', function () {
-      var strategy = Object.create(new Strategy({ passReqToCallback: true, callbackURL: '/here' }, function () {}));
-      expect(strategy._passReqToCallback).to.be.true;
-    });
+    it('requires a verify callback', function () {
+      expect(function () { new Strategy({ callbackUrl: '/' }) }).to.throw('MockStrategy requires a verify callback')
+    })
   });
 });
 
 describe('#authenticate', function (){
-  var req;
+  let req, res, strategy, next;
 
   beforeEach(function (){
-    req = { query: { } };
+    req = { }
+    req.query = { }
+    req.session = {
+      regenerate: (cb) => cb(),
+      save: (cb) => cb()
+    }
+
+    res = {}
+    res.headers = {}
+    res.redirect = (path) => { throw new Error(`redirected to ${path}`)}
+    res.end = () => {}
+    res.setHeader = function (k, v) { this.headers[k] = v }.bind(res)
+
+    next = (...args) => { throw new Error(`next called with ${args.join(', ')}`) }
   });
 
   context('when __mock_strategy_callback is not set', function () {
-    it('redirects the user to the callbackURL with the correct query param', function (done) {
-      var strategy = Object.create(new Strategy({ callbackURL: '/cb' }, function () {}));
-      strategy.redirect = function (path) {
-        expect(path).to.eql('/cb?__mock_strategy_callback=true');
-        done();
-      };
-      strategy.authenticate(req, {});
+    beforeEach(function (done) {
+      res.end = done
+
+      passport.use(new Strategy({ name: 'mocked', callbackURL: '/cb' }, () => {}));
+      passport.authenticate('mocked')(req, res, next)
+    })
+
+    it('redirects the user to the callbackURL with the correct query param', function () {
+      expect(res.headers['Location']).to.eql('/cb?__mock_strategy_callback=true');
     });
   });
 
   context('when __mock_strategy_callback is set', function () {
-    var strategy;
-
     beforeEach(function () {
       req.query.__mock_strategy_callback = true;
     });
 
-    describe('#_error', function () {
-      it('calls the fail method', function (done) {
-        strategy = new Strategy({ callbackURL: '/cb' }, function (access_token, refresh_token, profile, cb) { cb(); });
-        strategy._error = new Error('test error');
-        strategy = Object.create(strategy);
+    context('verify callback', () => {
+      let passport_user
 
-        strategy.fail = function (err, statusCode) {
-          expect(err).to.be.an.instanceOf(Error);
-          expect(err.message).to.eql('test error');
-          expect(statusCode).to.eql(401);
-          expect(strategy._error).to.not.exist;
+      beforeEach(function (done) {
+        strategy = new Strategy({ callbackURL: '/cb' }, function (...args) {
+          const cb = args.pop()
+          cb(null, { ...args });
+        });
+
+        strategy._addVerifyArgs('token');
+
+        passport.use(strategy)
+        passport.authenticate('mocked')(req, res, done)
+      })
+
+      it('calls the verify method with the persisted set of args', function () {
+        expect(req.session.passport.user).to.eql({ '0': 'token' })
+      });
+
+      context('no more verifyArgs', function () {
+        let err
+
+        beforeEach(function (done) {
+          passport.authenticate('mocked')(req, res, (_err) => {
+            err = _err
+            done()
+          })
+        })
+
+        it('returns an error if there are no more args', function () {
+          expect(err).to.exist
+          expect(err.message).to.eql('MockStrategy requires arguments to be defined for each authentication')
+        });
+      })
+
+    })
+
+    describe('error', function () {
+      let err
+
+      beforeEach(function (done) {
+        strategy = new Strategy({ callbackURL: '/cb' }, function (...args) {
+          const cb = args.pop()
+          cb(null, { ...args });
+        });
+
+        strategy._addVerifyArgs(new Error('sww'));
+
+        passport.use(strategy)
+        passport.authenticate('mocked')(req, res, (_err) => {
+          err = _err;
           done();
-        };
+        });
+      })
 
-        strategy.authenticate(req, {});
+      it('errors correctly with given a single verify argument', function () {
+        expect(err).to.exist
+        expect(err.message).to.eql('sww')
       });
     });
 
-    context('when the verify arity is 6', function () {
-      it('handles a verify method that asks for request, access token, refresh token, token response, and profile', function (done) {
-        strategy = new Strategy({ callbackURL: '/cb', passReqToCallback: true }, function (request, access_token, refresh_token, token_response, profile, cb) {
-          cb(null, {
-            request: request,
-            profile: profile,
-            token_response: token_response,
-            access_token: access_token,
-            refresh_token: refresh_token
-          });
-        });
-        strategy._token_response = { access_token: 'at', refresh_token: 'rt' };
-        strategy._profile = { id: 1 };
-        strategy = Object.create(strategy);
+    context('when passReqToCallback: true', function () {
+      let _req;
 
-        strategy.success = function (data) {
-          expect(data.request).to.eql(req);
-          expect(data.access_token).to.eql('at');
-          expect(data.refresh_token).to.eql('rt');
-          expect(data.profile.id).to.eql(1);
-          expect(data.token_response).to.have.keys('access_token')
-          expect(data.token_response.access_token).to.eql('at');
-          expect(data.token_response.refresh_token).to.not.exist;
-          done();
-        };
-
-        strategy.authenticate(req, {});
-      });
-    });
-
-    context('when the verify arity is 5', function () {
-      context('when passReqToCallback is false', function () {
-        it('handles a verify method that asks for access token, refresh token, token response, and profile', function (done) {
-          strategy = new Strategy({ callbackURL: '/cb' }, function (access_token, refresh_token, token_response, profile, cb) {
-            cb(null, {
-              profile: profile,
-              token_response: token_response,
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-          });
-
-          strategy._token_response = { access_token: 'at', refresh_token: 'rt' };
-          strategy._profile = { id: 1 };
-          strategy = Object.create(strategy);
-
-          strategy.success = function (data) {
-            expect(data.access_token).to.eql('at');
-            expect(data.refresh_token).to.eql('rt');
-            expect(data.profile.id).to.eql(1);
-            expect(data.token_response).to.have.keys('access_token')
-            expect(data.token_response.access_token).to.eql('at');
-            expect(data.token_response.refresh_token).to.not.exist;
-            done();
-          };
-
-          strategy.authenticate(req, {});
-        });
-      });
-
-      context('when passReqToCallback is true', function () {
-        it('handles a verify method that asks for the request, access_token, refresh_token, and profile', function (done) {
-          strategy = new Strategy({ callbackURL: '/cb', passReqToCallback: true }, function (request, access_token, refresh_token, profile, cb) {
-            cb(null, {
-              request: request,
-              profile: profile,
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-          });
-
-          strategy._token_response = { access_token: 'at', refresh_token: 'rt' };
-          strategy._profile = { id: 1 };
-          strategy = Object.create(strategy);
-
-          strategy.success = function (data) {
-            expect(data.access_token).to.eql('at');
-            expect(data.refresh_token).to.eql('rt');
-            expect(data.profile.id).to.eql(1);
-            expect(data.request).to.eql(req);
-            done();
-          };
-
-          strategy.authenticate(req, {});
+      beforeEach(function (done) {
+        strategy = new Strategy({ callbackURL: '/cb', passReqToCallback: true }, function (req, token, cb) {
+          _req = req
+          cb(null, { token });
         });
 
+        strategy._addVerifyArgs('token');
+
+        passport.use(strategy)
+        passport.authenticate('mocked')(req, res, done)
       });
-    });
 
-    context('when the verify arity is 4', function () {
-      it('handles a verify method that asks for accessToken, refreshToken, and profile correctly', function (done) {
-        strategy = new Strategy({ callbackURL: '/cb' }, function (access_token, refresh_token, profile, cb) {
-          cb(null, {
-            profile: profile,
-            access_token: access_token,
-            refresh_token: refresh_token
-          });
-        });
-
-        strategy._token_response = { access_token: 'at', refresh_token: 'rt' };
-        strategy._profile = { id: 1 };
-        strategy = Object.create(strategy);
-
-        strategy.success = function (data) {
-          expect(data.access_token).to.eql('at');
-          expect(data.refresh_token).to.eql('rt');
-          expect(data.profile.id).to.eql(1);
-          done();
-        };
-        strategy.authenticate(req, {});
+      it('passes the request into the verify method', function () {
+        expect(_req).to.eql(req)
       });
-    });
-
-    context('when the verify arity is 2', function () {
-      it('handles a verify method that asks for tokenResponse correctly', function (done) {
-        strategy = new Strategy({ callbackURL: '/cb' }, function (token_response, cb) {
-          cb(null, { token_response: token_response });
-        });
-
-        strategy._token_response = { what: 'ever' };
-        strategy = Object.create(strategy);
-
-        strategy.success = function (data) {
-          expect(data.token_response).to.eql({ what: 'ever' });
-          done();
-        };
-        strategy.authenticate(req, {});
-      });
-    });
-  });
-});
-
-describe('#Issuer', function() {
-  it('returns a discover function and well known config object', function() {
-    expect(Issuer.discover).to.be.a('function');
-  });
-
-  describe('#discover', function() {
-    context('when a url is passed', function() {
-      it('returns a Client contructor and well known config object', function() {
-        Issuer.discover('localhost:5000/').then(function(issuer) {
-          expect(issuer.Client).to.be.a('function');
-        });
-      });
-    });
-
-    context('when a url is not passed', function() {
-      it('rejects with an error', function() {
-        Issuer.discover().catch(function(err) {
-          expect(err).to.be.defined;
-        });
-      });
-    });
-  });
-});
-
-describe('#Client', function() {
-  beforeEach(function (){
-    config = { issuer: {
-      host: 'http://localhost:3000/auth/o_auth2/.well-known/openid-configuration'
-    }};
-  });
-
-  it('returns a new client', function() {
-    Issuer.discover('localhost:5000/').then(function(issuer) {
-      return new issuer.Client(config);
-    }).then((client) => {
-      expect(client.issuer).to.be.defined;
     });
   });
 });

@@ -1,4 +1,4 @@
-var util = require('util');
-var passport = require('passport');
+const util = require('util');
+const passport = require('passport-strategy');
 
 module.exports = require('./strategy')(passport, util);

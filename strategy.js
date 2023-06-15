@@ -1,24 +1,22 @@
-var Promise = require('bluebird');
 var URL = require('url');
 
 module.exports = function (passport, util) {
   var clone = function (o) { return JSON.parse(JSON.stringify(o)); }
 
   function MockStrategy (options, verify) {
-    if (!(options.callbackURL || options.redirect_uri || options.client.redirect_uris[0])) { throw new TypeError('MockStrategy requires a callbackURL'); }
+    options ||= {}
 
-    if (!verify) {
-      this.verify = function(tokenset, next) {
-        next(null, { accessToken: tokenset.access_token, refreshToken: tokenset.refresh_token, idToken: tokenset.claims });
-      };
-    } else {
-      this.verify = verify;
-    }
-
+    this._callbackURL = options.callbackURL || options.callbackUrl || options.redirect_uri || (options.redirect_uris?.length && options.redirect_uris[0])
     this.name = options.name || 'mocked';
-    this._callbackURL = (options.callbackURL || options.redirect_uri || options.client.redirect_uris[0]);
     this._passReqToCallback = options.passReqToCallback || false;
+    this.verify = verify;
+    this._verifyArgs = [];
+
+    if (!this._callbackURL) { throw new TypeError('MockStrategy requires a callbackURL'); }
+    if (!this.verify) { throw new TypeError('MockStrategy requires a verify callback'); }
   }
+
+  passport.Strategy.call(this);
 
   util.inherits(MockStrategy, passport.Strategy);
 
@@ -26,66 +24,32 @@ module.exports = function (passport, util) {
     if (!req.query.__mock_strategy_callback) {
       this.redirect(this._callbackURL + '?__mock_strategy_callback=true');
     } else {
-      if (this._error) {
-        var error = this._error;
-        this.__proto__ && delete this.__proto__._error;
-        this.fail(error, 401);
-      } else {
-        var verified = function (e, d) { this.success(d); }.bind(this);
-
-        var token_set = clone(this._token_response || {});
-        var profile = this._profile || {};
-        var token_response = clone(this._token_response || {});
-        var access_token = token_response['access_token'];
-        var refresh_token = token_response['refresh_token'];
-        delete token_response['refresh_token'];
-
-        if (this.__proto__) {
-          delete this.__proto__._token_response;
-          delete this.__proto__._profile;
-        };
-
-        var arity = this.verify.length;
-        if (arity === 6) {
-          this.verify(req, access_token, refresh_token, token_response, profile, verified);
-        } else if (arity === 5) {
-          if (this._passReqToCallback) {
-            this.verify(req, access_token, refresh_token, profile, verified);
-          } else {
-            this.verify(access_token, refresh_token, token_response, profile, verified);
-          };
-        } else if (arity === 4) {
-          this.verify(access_token, refresh_token, profile, verified);
-        } else if (arity === 2) {
-          this.verify(token_set, verified);
+      this._getNextVerifyArgs().then((...args) => {
+        if (this._passReqToCallback) {
+          args.unshift(req)
         }
-      }
+
+        this.verify(...args, (err, data) => {
+          this.success(data);
+        })
+      }).catch(this.error)
     }
   }
 
-  function Client (config) {
-    return new Promise(function (res, rej) {
-      config.issuer = Issuer._well_known_config;
-      res(config);
-    });
+  MockStrategy.prototype._addVerifyArgs = function (...args) {
+    this._verifyArgs.push(args)
   }
 
-  let Issuer = (function () {
-    let self = {};
-
-    self.discover = function (url) {
-      return new Promise(function (res, rej) {
-        !!url ? res({ Client: Client }) : rej('Issuer requires a url');
-      });
-    }
-
-    return self;
-  })();
-
-  Issuer._well_known_config = {};
+  MockStrategy.prototype._getNextVerifyArgs = function () {
+    return new Promise((resolve, reject) => {
+      const args = this._verifyArgs.shift();
+      if(!args) { return reject(new Error('MockStrategy requires arguments to be defined for each authentication')) }
+      if(args.length === 1 && args[0].name === 'Error') { return reject(args[0]) }
+      resolve(...args)
+    })
+  }
 
   return {
-    Issuer: Issuer,
     Strategy: MockStrategy,
     OAuth2Strategy: MockStrategy,
     OAuth2: {
