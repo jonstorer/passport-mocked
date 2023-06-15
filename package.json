@@ -1,7 +1,7 @@
 {
   "name": "passport-mocked",
-  "version": "1.4.0",
-  "description": "Mock Passport Strategy",
+  "version": "2.0.0",
+  "description": "Passport MockStrategy",
   "main": "lib",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test/**/*"
@@ -21,7 +21,11 @@
   },
   "devDependencies": {
     "chai": "^4.3.7",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "mocha": "^10.2.0",
+    "morgan": "^1.10.0",
     "passport": "^0.6.0"
   }
 }

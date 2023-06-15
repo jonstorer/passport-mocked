@@ -1,12 +1,12 @@
-var passport = require('passport');
-var port = 3445;
+const passport = require('passport');
+const port = 3445;
 
 passport.serializeUser(function(user, done) { done(null, user); });
 passport.deserializeUser(function(user, done) { done(null, user); });
 
-var providers = [ 'dropbox', 'google', 'box' ];
+const providers = [ 'dropbox', 'google', 'box' ];
 
-var configs = providers.map(function(provider) {
+const configs = providers.map(function(provider) {
   return {
     name: provider,
     callbackURL: 'http://localhost:' + port + '/auth/' + provider + '/callback'
@@ -14,24 +14,24 @@ var configs = providers.map(function(provider) {
 });
 
 // passport-mock
-var Strategy = require('../../').Strategy;
+const Strategy = require('../../').Strategy;
 
 configs.forEach(function(config) {
   passport.use(new Strategy(config, function (accessToken, refreshToken, profile, done) {
+    debugger
     profile.accessToken = accessToken;
     profile.refreshToken = refreshToken;
     done(null, profile);
   }));
 });
 
-var express = require('express')
-  , app = express();
+const express = require('express')
+    , app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 app.use(require('morgan')('dev'));
-app.use(require('body-parser')());
-app.use(require('express-session')({ secret: 'keyboard cat' }));
+app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -40,32 +40,34 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(express.static(__dirname + '/public'));
+let count = 0;
+const mockMiddlware = (provider) => {
+  return (req, res, next) => {
+    const strategy = passport._strategies[provider];
 
-var count = 0;
-var buildFakeProfile = function (provider) {
-  return function (req, res, next) {
-    var strategy = passport._strategies[provider];
-    strategy._token_response = { access_token: provider + '-at', expires_in: 3600 };
-    strategy._profile = { id: ++count, provider: provider };
+    strategy._addVerifyArgs(
+      `at-${provider}`,
+      `rt-${provider}`,
+      { id: ++count, provider: provider }
+    );
+
     next();
   };
 };
 
 providers.forEach(function (provider) {
-  app.get('/auth/' + provider, buildFakeProfile(provider), passport.authenticate(provider));
+  app.get('/auth/' + provider, mockMiddlware(provider), passport.authenticate(provider));
   app.get('/auth/' + provider + '/callback', passport.authenticate(provider, { successRedirect: '/', failureRedirect: '/' }));
 });
 
 app.get('/logout', function (req, res, next) {
-  req.logout();
-  res.redirect('/');
+  req.logout(() => {
+    res.redirect('/');
+  });
 });
 
 app.get('/', function (req, res, next) { res.render('index'); });
 
-var server = app.listen(port, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('Passport Mock Example listening at http://%s:%s', host, port);
+const server = app.listen(port, function () {
+  console.log('Passport Mock Example listening at http://localhost:%s', port);
 });
